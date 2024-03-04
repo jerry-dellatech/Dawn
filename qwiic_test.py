@@ -1,17 +1,23 @@
+
+# Code to test SparkFun Quad relay board.
+
 import qwiic_relay
 from machine import Pin, I2C, RTC
 from time import sleep
 import sys
-
-# i2c = I2C(0,scl=Pin(17),sda=Pin(16),freq=100000)
-# print(i2c.scan())
 
 def time_str(now):
     ''' Return formatted time string for form mm/dd/yy hh:mm:ss. '''
     return f'{now[1]}/{now[2]}/{now[0]} {now[4]}:{now[5]}:{now[6]}'
 
 def print_relay_status(relays):
-    # Print the status of all relays
+    ''' Print the status of all relays.
+    
+        Args:
+            relays: qwiic_relay.QwiicRelay object
+        Returns:
+            None
+    '''
     print(f'Relay 1 state: {relays.get_relay_state(1)}')
     print(f'Relay 2 state: {relays.get_relay_state(2)}')
     print(f'Relay 3 state: {relays.get_relay_state(3)}')
@@ -20,6 +26,8 @@ def print_relay_status(relays):
 
 # set the real time clock (RTC)
 rtc = RTC()
+# Run get_time.py to get time from server. Paste into input box.
+# Only have to do this once per boot.
 timestr = input('Input current datetime: YYYY,MM,DD,HH,MM (0 for no change): ')
 if timestr != '0':
     datetime_list = [int(s) for s in timestr[1:-1].split(',')]
@@ -47,7 +55,4 @@ relays.set_all_relays_off()
 # Print the status of all relays
 now = rtc.datetime()
 print(time_str(now))
-print(f'Relay 1 state: {relays.get_relay_state(1)}')
-print(f'Relay 2 state: {relays.get_relay_state(2)}')
-print(f'Relay 3 state: {relays.get_relay_state(3)}')
-print(f'Relay 4 state: {relays.get_relay_state(4)}')
+print_relay_status(relays)
