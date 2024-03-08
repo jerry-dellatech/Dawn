@@ -2,6 +2,7 @@ import qwiic_relay
 from machine import Pin, I2C, RTC
 from time import sleep
 import sys
+import pins
 
 #This is a ton of boilerplate code to handle valve control
 #I built this on a "functional programming paradigm" instead of OOP as I am used to C. Infact, most of this code was converted from C
@@ -15,19 +16,20 @@ import sys
 def main():
     # Initialize everything
 
-    #insure to define initial state that makes sense
+    # insure to define initial state that makes sense
     solenoidname = Valve(ALWAYS_OPEN, 1, True)
     
-    set_valve(solenoidname, OPEN)
+    solenoidname.set_valve(OPEN)
     
     # Python init relay
     while True:
-        if GPIO.input(1) and not GPIO.input(2):
-            set_valve(solenoidname, CLOSED) #or something like that
-        elif GPIO.input(2) and not GPIO.input(1):
-            set_valve(solenoidname, OPEN) #or something like that
+        if pins.START.value() and not pins.STOP.value():
+            solenoidname.set_valve(CLOSED) # or something like that
+        elif pins.STOP.value() and not pins.START.value():
+            solenoidname.set_valve(OPEN) # or something like that
         else:
-            sys.exit("IO Conflict")
+            # sys.exit("IO Conflict")
+            pass
 
             
 
@@ -42,26 +44,27 @@ OPEN = True
 CLOSED = False
 # Define valve
 class Valve:
-    def __init__(self, valve_type, connected_relay, state):
+    def __init__(self, valve_type=ALWAYS_OPEN, connected_relay=1, state=True):
         self.valve_type = valve_type
         self.state = state
+        self.connected_relay = connected_relay
 
-# Define function to set valve state
-def set_valve(valve, open):
-    if open:
-        if valve.valve_type == ALWAYS_OPEN:
-            relays.set_relay_off(valve.connected_relay)
-            valve.state = True
-        if valve.valve_type == ALWAYS_CLOSED:
-            relays.set_relay_on(valve.connected_relay)
-            valve.state = True
-    else:
-        if valve.valve_type == ALWAYS_OPEN:
-            relays.set_relay_on(valve.connected_relay)
-            valve.state = False
-        if valve.valve_type == ALWAYS_CLOSED:
-            relays.set_relay_off(valve.connected_relay)
-            valve.state = False
+    # Define function to set valve state
+    def set_valve(self, open: bool):
+        if open:
+            if self.valve_type == ALWAYS_OPEN:
+                relays.set_relay_off(self.connected_relay)
+                self.state = True
+            if self.valve_type == ALWAYS_CLOSED:
+                relays.set_relay_on(self.connected_relay)
+                self.state = True
+        else:
+            if self.valve_type == ALWAYS_OPEN:
+                relays.set_relay_on(self.connected_relay)
+                self.state = False
+            if self.valve_type == ALWAYS_CLOSED:
+                relays.set_relay_off(self.connected_relay)
+                self.state = False
 
 relays = qwiic_relay.QwiicRelay(qwiic_relay.QUAD_RELAY_DEFUALT_ADDR)
 
