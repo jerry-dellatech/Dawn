@@ -1,10 +1,8 @@
-import qwiic_relay
-from relay import Relay
 import pins
 
 """Toggles all relays on board based on pin input"""
 
-relay = Relay(qwiic_relay.QUAD_RELAY_DEFUALT_ADDR, pins.I2C_DRIVER)
+relay = pins.RELAY_CONTROLLER
 
 def main_loop():
     if not relay.begin():

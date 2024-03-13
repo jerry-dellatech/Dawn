@@ -1,4 +1,3 @@
-import qwiic_relay
 import sys
 import pins
 import relay
@@ -17,7 +16,7 @@ CLOSED = False
 
 # Define valve
 class Valve:
-    def __init__(self, valve_type, relay_controller, connected_relay, state=OPEN):
+    def __init__(self, valve_type, relay_controller, connected_relay, state=CLOSED):
         self.valve_type = valve_type
         self.state = state
         self.relay_controller: relay.Relay = relay_controller
@@ -49,8 +48,8 @@ def main():
 if __name__ == "__main__":
 
     # initialize relay and valve
-    relays = relay.Relay(qwiic_relay.QUAD_RELAY_DEFUALT_ADDR, pins.I2C_DRIVER)
-    solenoidname = Valve(ALWAYS_CLOSED, relays, 1, OPEN)
+    relays = pins.RELAY_CONTROLLER # get relay controller from pins.py
+    solenoidname = Valve(ALWAYS_CLOSED, relays, 1, CLOSED)
 
     # check relay connection
     if relays.begin() == False:
