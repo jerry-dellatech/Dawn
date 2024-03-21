@@ -1,6 +1,6 @@
 from relay import Relay
 
-"""Defines valve"""
+"""Solenoid valve controller"""
 
 class Valve:
     NORMAL_OPEN = True
