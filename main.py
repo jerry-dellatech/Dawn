@@ -1,6 +1,7 @@
 import sys
 import pins
 from valve import Valve
+from pump import VacuumPump
 
 #This is a ton of boilerplate code to handle valve control
 #I built this on a "functional programming paradigm" instead of OOP as I am used to C. Infact, most of this code was converted from C
@@ -12,13 +13,15 @@ from valve import Valve
 def main():
     # main loop
     while True:
-        if pins.START.value() and pins.STOP.value(): 
+        if not pins.START.value() and not pins.STOP.value(): 
             continue # IO conflict, ignore it
-
-        if solenoidname.state == Valve.OPEN and pins.START.value():
-            solenoidname.set_valve(Valve.CLOSED)
-        elif solenoidname.state == Valve.CLOSED and pins.STOP.value():
-            solenoidname.set_valve(Valve.OPEN)
+        
+        if valve.state == Valve.CLOSED and not pins.START.value():
+            pump.set_pump(VacuumPump.ON)
+            valve.set_valve(Valve.OPEN)
+        elif valve.state == Valve.OPEN and not pins.STOP.value():
+            pump.set_pump(VacuumPump.OFF)
+            valve.set_valve(Valve.CLOSED)
 
 
 # Call the main function
@@ -26,7 +29,9 @@ if __name__ == "__main__":
 
     # initialize relay and valve
     relays = pins.RELAY_CONTROLLER # get relay controller from pins.py
-    solenoidname = Valve(Valve.NORMAL_CLOSED, relays, 1, Valve.CLOSED)
+
+    pump = VacuumPump(relays, 1)
+    valve = Valve(Valve.NORMAL_CLOSED, relays, 2, Valve.CLOSED)
 
     # check relay connection
     if relays.begin() == False:
@@ -36,6 +41,6 @@ if __name__ == "__main__":
     try:
         # run main loop
         main()
-    except (KeyboardInterrupt, SystemExit):
+    finally:
         # turn off relays on exit
         relays.set_all_relays_off()
