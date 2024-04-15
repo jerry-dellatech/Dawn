@@ -1,4 +1,4 @@
-from relay import Relay
+from single_relay import SingleRelay
 
 """Vacuum pump controller"""
 
@@ -7,12 +7,13 @@ class VacuumPump:
     ON = True
     OFF = False
 
-    def __init__(self, relay_controller, connected_relay:int, state=OFF):
-        self.relay_controller: Relay = relay_controller
-        self.connected_relay = connected_relay
-        self.state = state
+    def __init__(self, relay:SingleRelay, state=OFF):
+        self.relay = relay
         self.set_pump(state)
 
+    @property
+    def state(self) -> bool:
+        return self.relay.get_relay_state()
+
     def set_pump(self, state: bool):
-        self.relay_controller.set_relay_state(self.connected_relay, state)
-        self.state = state
+        self.relay.set_relay_state(state)

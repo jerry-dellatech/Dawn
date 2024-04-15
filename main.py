@@ -2,6 +2,9 @@ import sys
 import pins
 from valve import Valve
 from pump import VacuumPump
+from time import sleep
+
+"""Main file. Handles physical pin inputs; toggles valves & vacuum pump"""
 
 #This is a ton of boilerplate code to handle valve control
 #I built this on a "functional programming paradigm" instead of OOP as I am used to C. Infact, most of this code was converted from C
@@ -13,15 +16,18 @@ from pump import VacuumPump
 def main():
     # main loop
     while True:
-        if not pins.START.value() and not pins.STOP.value(): 
+        if pins.START.pullup_value() and pins.STOP.pullup_value(): 
             continue # IO conflict, ignore it
         
-        if valve.state == Valve.CLOSED and not pins.START.value():
+        if pins.START.pullup_value():
             pump.set_pump(VacuumPump.ON)
+            sleep(0.1)
             valve.set_valve(Valve.OPEN)
-        elif valve.state == Valve.OPEN and not pins.STOP.value():
-            pump.set_pump(VacuumPump.OFF)
+        elif pins.STOP.pullup_value():
             valve.set_valve(Valve.CLOSED)
+            sleep(0.1)
+            pump.set_pump(VacuumPump.OFF)
+            
 
 
 # Call the main function
@@ -30,8 +36,8 @@ if __name__ == "__main__":
     # initialize relay and valve
     relays = pins.RELAY_CONTROLLER # get relay controller from pins.py
 
-    pump = VacuumPump(relays, 1)
-    valve = Valve(Valve.NORMAL_CLOSED, relays, 2, Valve.CLOSED)
+    pump = VacuumPump(pins.PUMP_RELAY, VacuumPump.OFF)
+    valve = Valve(Valve.NORMAL_CLOSED, pins.VALVE_RELAY, Valve.CLOSED)
 
     # check relay connection
     if relays.begin() == False:
