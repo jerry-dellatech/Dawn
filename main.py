@@ -6,13 +6,6 @@ from time import sleep
 
 """Main file. Handles physical pin inputs; toggles valves & vacuum pump"""
 
-#This is a ton of boilerplate code to handle valve control
-#I built this on a "functional programming paradigm" instead of OOP as I am used to C. Infact, most of this code was converted from C
-
-#A lot of this boilerplate is super excessive but I thought I would include it to simplify the valves for non coders who have to look at this
-#If you really want, this whole thing could be 10 lines
-
-
 def main():
     # main loop
     while True:
